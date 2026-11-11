@@ -3,19 +3,16 @@ import logging
 from typing import Mapping, MutableMapping, Optional, Sequence, Iterable, List, Tuple, Union
 
 from homeassistant.components.media_player import PLATFORM_SCHEMA, MediaPlayerEntity
+try:
+    from homeassistant.components.media_player import MediaPlayerEntityFeature
+except ImportError:
+    MediaPlayerEntityFeature = None
+
 from homeassistant.components.media_player.const import (
     MEDIA_TYPE_CHANNEL,
     MEDIA_TYPE_MOVIE,
     MEDIA_TYPE_MUSIC,
     MEDIA_TYPE_TVSHOW,
-    SUPPORT_PLAY_MEDIA,
-    SUPPORT_NEXT_TRACK,
-    SUPPORT_PAUSE,
-    SUPPORT_PLAY,
-    SUPPORT_PREVIOUS_TRACK,
-    SUPPORT_SEEK,
-    SUPPORT_STOP,
-    SUPPORT_BROWSE_MEDIA,
 )
 from homeassistant.const import (
     CONF_URL,
@@ -49,16 +46,19 @@ DEFAULT_PORT = 8096
 DEFAULT_SSL_PORT = 8920
 DEFAULT_SSL = False
 
-SUPPORT_JELLYFIN = (
-    SUPPORT_BROWSE_MEDIA
-    | SUPPORT_PLAY_MEDIA
-    | SUPPORT_PAUSE
-    | SUPPORT_PREVIOUS_TRACK
-    | SUPPORT_NEXT_TRACK
-    | SUPPORT_STOP
-    | SUPPORT_SEEK
-    | SUPPORT_PLAY
-)
+if MediaPlayerEntityFeature is not None:
+    SUPPORT_JELLYFIN = (
+        MediaPlayerEntityFeature.BROWSE_MEDIA
+        | MediaPlayerEntityFeature.PLAY_MEDIA
+        | MediaPlayerEntityFeature.PAUSE
+        | MediaPlayerEntityFeature.PREVIOUS_TRACK
+        | MediaPlayerEntityFeature.NEXT_TRACK
+        | MediaPlayerEntityFeature.STOP
+        | MediaPlayerEntityFeature.SEEK
+        | MediaPlayerEntityFeature.PLAY
+    )
+else:
+    SUPPORT_JELLYFIN = 0
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entities):
